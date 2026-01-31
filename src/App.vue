@@ -1,14 +1,37 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
     <router-view/>
+    <ToastMessage ref="toast"/>
   </div>
 </template>
 
+<script>
+import ToastMessage from './components/ToastMessage.vue'
+
+export default {
+  name: 'App',
+  components: {
+    ToastMessage
+  },
+  data () {
+    return {
+      toast: null
+    }
+  },
+  mounted () {
+    this.toast = this.$refs.toast
+  },
+  provide () {
+    return {
+      toast: () => this.$refs.toast
+    }
+  }
+}
+</script>
+
 <style lang="scss">
+#root, html, body, #app { height: 100%; margin: 0; }
+body { overflow-x: hidden; }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -17,16 +40,5 @@
   color: #2c3e50;
 }
 
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
+/* nav removed */
 </style>
