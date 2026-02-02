@@ -105,33 +105,36 @@
           <span class="add-tooltip">添加好友</span>
         </div>
       </div>
-      <div v-if="loading" class="loading">加载中...</div>
       <div v-if="error" class="error">{{ error }}</div>
 
-      <div class="friends" v-if="!loading && friends.length">
-        <div class="friend" v-for="f in friends" :key="f.id">
-          <div class="avatar" @click="openUser(f.id)">
-            <div class="avatar-inner">
-              <img v-if="friendAvatarUrls[f.id]" :src="friendAvatarUrls[f.id]" alt="avatar" />
-              <div v-else class="initials">{{ initials(f) }}</div>
-            </div>
-            <span class="status" :class="f.status === 1 ? 'online' : 'offline'" :title="f.status === 1 ? '在线' : '离线'"></span>
-          </div>
-          <div class="meta">
-            <div class="name">{{ f.nickName || f.userName }}</div>
-            <div class="sub">{{ f.email || f.phone || '' }}</div>
-          </div>
-          <div class="actions">
-            <button class="connect" @click.prevent>连线</button>
-          </div>
+      <div class="friends">
+        <div v-if="loading" class="loading-spinner">
+          <div class="spinner"></div>
         </div>
+        <template v-if="!loading && friends.length">
+          <div class="friend" v-for="f in friends" :key="f.id">
+            <div class="avatar" @click="openUser(f.id)">
+              <div class="avatar-inner">
+                <img v-if="friendAvatarUrls[f.id]" :src="friendAvatarUrls[f.id]" alt="avatar" />
+                <div v-else class="initials">{{ initials(f) }}</div>
+              </div>
+              <span class="status" :class="f.status === 1 ? 'online' : 'offline'" :title="f.status === 1 ? '在线' : '离线'"></span>
+            </div>
+            <div class="meta">
+              <div class="name">{{ f.nickName || f.userName }}</div>
+              <div class="sub">{{ f.email || f.phone || '' }}</div>
+            </div>
+            <div class="actions">
+              <button class="connect" @click.prevent>连线</button>
+            </div>
+          </div>
+        </template>
+        <div v-if="!loading && !friends.length" class="empty">暂无好友</div>
       </div>
-
-      <div v-if="!loading && !friends.length" class="empty">暂无好友</div>
-      <div v-if="!loading && totalPages > 1" class="pagination">
-        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
+      <div v-if="totalPages > 1" class="pagination">
+        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1 || loading">上一页</button>
         <span>{{ currentPage }} / {{ totalPages }}</span>
-        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">下一页</button>
+        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages || loading">下一页</button>
       </div>
     </div>
   </div>
@@ -222,7 +225,7 @@ export default {
       try {
         const res = await axios.get('/user/friend/list', {
           params: {
-            page: this.currentPage,
+            current: this.currentPage,
             size: this.pageSize
           }
         })
@@ -453,7 +456,7 @@ export default {
 </script>
 
 <style scoped>
-.main-page { padding: 24px; position: relative; min-height: 100vh }
+.main-page { position: relative; width: 100vw; height: 100vh; background: url('@/assets/main.jpg') no-repeat center center; background-size: cover; overflow: hidden }
 .current-user { position: absolute; top: 24px; right: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px }
 .current-user .avatar { position: relative; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: transparent; cursor: pointer; overflow: visible; transition: transform 0.2s }
 .current-user .avatar:hover { transform: scale(1.05) }
@@ -462,7 +465,7 @@ export default {
 .current-user .avatar-inner .initials { font-weight: 700; color: #2c3e50 }
 .user-tooltip { opacity: 0; white-space: nowrap; font-size: 14px; color: #666; transition: opacity 0.2s }
 .current-user:hover .user-tooltip { opacity: 1 }
-.content-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 80px; min-height: calc(100vh - 48px) }
+.content-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 80px; height: calc(100vh - 48px); overflow: hidden }
 .header-section { display: flex; align-items: center; gap: 8px; margin-bottom: 18px }
 .content-wrapper h2 { margin-bottom: 0; font-size: 32px }
 .add-icon { width: 32px; height: 32px; border-radius: 50%; background: #0077be; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity 0.2s; position: relative }
@@ -504,8 +507,14 @@ export default {
 .search-pagination button:disabled { opacity: 0.5; cursor: not-allowed }
 .search-pagination span { color: #666; font-size: 12px }
 .loading { text-align: center }
+.loading-spinner { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: transparent; z-index: 10 }
+.spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0077be; border-radius: 50%; animation: spin 1s linear infinite }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 .error { color: #b00020; text-align: center }
-.friends { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; max-width: 980px; justify-content: center }
+.friends { display: grid; grid-template-columns: repeat(3, 312.24px); grid-auto-rows: 88px; grid-auto-flow: row; gap: 16px; width: 968.72px; height: 296px; justify-content: center; align-items: start; overflow-y: auto; position: relative }
 .friend { display: flex; align-items: center; padding: 12px; background: rgba(255,255,255,0.9); border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06) }
 .avatar { position: relative; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: transparent; cursor: pointer; overflow: visible; transition: transform 0.2s }
 .avatar:hover { transform: scale(1.05) }

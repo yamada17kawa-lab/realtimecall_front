@@ -143,13 +143,13 @@ export default {
 </script>
 
 <style scoped>
-.friend-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px }
+.friend-page { position: relative; width: 100vw; height: 100vh; background: url('@/assets/friend.jpg') no-repeat center center; background-size: cover; overflow: hidden; display: flex; align-items: center; justify-content: center }
 .content-wrapper { width: 100%; max-width: 500px; position: relative }
 .close-btn { position: absolute; top: 0; right: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; transition: color 0.2s; z-index: 10 }
 .close-btn:hover { color: #2c3e50 }
 .loading { text-align: center; padding: 40px 0; color: #666 }
 .error { text-align: center; padding: 40px 0; color: #b00020 }
-.profile-card { background: rgba(255,255,255,0.95); border-radius: 16px; padding: 32px 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); position: relative }
+.profile-card { background: transparent; border-radius: 16px; padding: 32px 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); position: relative }
 .delete-friend-btn { position: absolute; top: 0; left: 0; display: flex; align-items: center; gap: 8px; cursor: pointer; color: #dc3545; transition: all 0.2s }
 .delete-friend-btn .delete-text { opacity: 0; white-space: nowrap; font-size: 14px; font-weight: 500; transition: opacity 0.2s }
 .delete-friend-btn:hover .delete-text { opacity: 1 }

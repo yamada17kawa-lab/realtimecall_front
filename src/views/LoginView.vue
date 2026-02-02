@@ -1,5 +1,11 @@
 <template>
   <div class="login-page" :style="bgStyle">
+    <div class="back-btn" @click="goHome">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+    </div>
     <h1>登录</h1>
     <form @submit.prevent="onSubmit" class="form">
       <div class="field">
@@ -69,6 +75,9 @@ export default {
     }
   },
   methods: {
+    goHome () {
+      this.$router.push({ name: 'home' })
+    },
     async onSubmit () {
       this.error = ''
       this.success = ''
@@ -102,15 +111,19 @@ export default {
 </script>
 
 <style scoped>
-.login-page { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box }
-.login-page h1 { margin: 0 0 18px; text-align: center; font-size: 28px }
+.login-page { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; position: relative }
+.back-btn { position: absolute; top: 24px; left: 24px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: opacity 0.2s }
+.back-btn:hover { opacity: 0.8 }
+.login-page h1 { margin: 0 0 18px; text-align: center; font-size: 28px; font-weight: 900; color: white }
 .form { max-width: 420px; width: 100% }
 .field { margin-bottom: 12px; }
-label { display:block; margin-bottom:6px }
-input { width:100%; padding:8px; box-sizing:border-box }
+label { display:block; margin-bottom:6px; color: white }
+input { width:100%; padding:8px; box-sizing:border-box; color: #333 }
 .actions { margin-top: 16px }
-.error { color: #b00020; margin-top: 12px }
-.success { color: #007700; margin-top: 12px }
+.actions button { width: 100%; padding: 12px; background: rgba(255,255,255,0.6); color: #0077be; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s }
+.actions button:hover { opacity: 0.9 }
+.error { color: #ffcccc; margin-top: 12px }
+.success { color: #ccffcc; margin-top: 12px }
 .password-wrapper { position: relative }
 .password-wrapper input { padding-right: 44px }
 .toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; padding: 4px; font-size: 16px }

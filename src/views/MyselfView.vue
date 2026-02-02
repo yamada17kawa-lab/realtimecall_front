@@ -411,7 +411,7 @@ export default {
 </script>
 
 <style scoped>
-.myself-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px }
+.myself-page { position: relative; width: 100vw; height: 100vh; background: url('@/assets/myself.jpg') no-repeat center center; background-size: cover; overflow: hidden; display: flex; align-items: center; justify-content: center }
 .content-wrapper { width: 100%; max-width: 500px; position: relative }
 .delete-btn { position: absolute; top: 0; left: 0; display: flex; align-items: center; gap: 8px; cursor: pointer; color: #dc3545; transition: all 0.2s }
 .delete-btn .delete-text { opacity: 0; white-space: nowrap; font-size: 14px; font-weight: 500; transition: opacity 0.2s }
@@ -420,7 +420,7 @@ export default {
 .close-btn:hover { color: #2c3e50 }
 .loading { text-align: center; color: #666 }
 .error { color: #b00020; text-align: center; margin-bottom: 16px }
-.profile-card { background: rgba(255,255,255,0.95); border-radius: 12px; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1) }
+.profile-card { background: transparent; border-radius: 12px; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1) }
 .avatar-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px }
 .avatar { width: 120px; height: 120px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f0f0f0; cursor: pointer; transition: transform 0.2s }
 .avatar:hover { transform: scale(1.05) }
