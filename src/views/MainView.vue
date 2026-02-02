@@ -76,12 +76,12 @@
             <div class="result-sub">{{ user.email || user.phone || '' }}</div>
           </div>
           <div class="result-actions">
-            <div class="add-friend-icon" :class="{ disabled: user.status !== 1 }" @click.stop="applyFriend(user)">
+            <div class="add-friend-icon" @click.stop="applyFriend(user)">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              <span class="add-friend-tooltip">{{ user.status === 1 ? '加好友' : '已离线' }}</span>
+              <span class="add-friend-tooltip">加好友</span>
             </div>
           </div>
         </div>
@@ -361,9 +361,6 @@ export default {
       this.performSearch()
     },
     async applyFriend (user) {
-      if (user.status !== 1) {
-        return
-      }
       try {
         const res = await axios.get(`/user/friend/apply/${user.id}`)
         const body = res.data || {}
@@ -434,16 +431,16 @@ export default {
     },
     async rejectRequest (user) {
       try {
-        const res = await axios.get(`/user/friend/reject/${user.id}`)
+        const res = await axios.get(`/user/apply/delete/${user.id}`)
         const body = res.data || {}
         if (body.code === 200) {
-          this.toast().show(body.message || '拒绝好友申请成功')
+          this.toast().show(body.message || '删除好友申请成功')
           await this.fetchFriendRequests()
         } else {
-          this.toast().show(body.message || '拒绝好友申请失败')
+          this.toast().show(body.message || '删除好友申请失败')
         }
       } catch (e) {
-        this.toast().show('拒绝好友申请失败')
+        this.toast().show('删除好友申请失败')
       }
     },
     changeNotificationPage (page) {

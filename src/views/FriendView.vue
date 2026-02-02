@@ -125,8 +125,18 @@ export default {
       }
       return null
     },
-    confirmDeleteFriend () {
+    async confirmDeleteFriend () {
       this.showDeleteConfirm = false
+      try {
+        const userId = this.$route.params.id
+        const res = await axios.post(`/user/friend/delete/${userId}`)
+        const body = res.data || {}
+        if (body.code === 200) {
+          this.$router.push({ name: 'main' })
+        }
+      } catch (e) {
+        console.error('删除好友失败', e)
+      }
     }
   }
 }
