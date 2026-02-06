@@ -128,10 +128,12 @@ export default {
         // token may be set in response header "Authorization"
         const headerToken = res.headers && (res.headers.authorization || res.headers.Authorization)
         if (headerToken) {
-          // 存储 token 原样返回（不要去掉 Bearer 或其他前缀）
           const token = headerToken
           localStorage.setItem('token', token)
           this.$store.dispatch('saveToken', token)
+        }
+        if (body.data && body.data.id) {
+          localStorage.setItem('userId', body.data.id)
         }
         this.success = body.message || '注册成功'
         // 成功后跳转到主页面

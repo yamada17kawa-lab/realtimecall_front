@@ -1,13 +1,19 @@
 <template>
   <div class="main-page">
-    <div class="current-user" v-if="currentUser" @click="openMyself">
-      <div class="avatar">
+    <div class="current-user" v-if="currentUser">
+      <div class="avatar" @click="openMyself">
         <div class="avatar-inner">
           <img v-if="avatarUrl" :src="avatarUrl" alt="avatar" />
           <div v-else class="initials">{{ initials(currentUser) }}</div>
         </div>
+        <span class="avatar-tooltip">用户详情</span>
       </div>
-      <span class="user-tooltip">用户详情</span>
+      <div class="camera-icon" @click="createRoom">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M15 8v8H5V8h10m1-2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4V7a1 1 0 0 0-1-1z" />
+        </svg>
+        <span class="camera-tooltip">创建房间</span>
+      </div>
     </div>
     
     <div class="notification-icon" @click.stop="toggleNotifications">
@@ -31,7 +37,7 @@
               <img v-if="requestAvatarUrls[user.id]" :src="requestAvatarUrls[user.id]" alt="avatar" />
               <div v-else class="initials">{{ initials(user) }}</div>
             </div>
-            <span class="status" :class="user.status === 1 ? 'online' : 'offline'" :title="user.status === 1 ? '在线' : '离线'"></span>
+            <span class="status" :class="user.status === 1 ? 'online' : (user.status === 2 ? 'incall' : 'offline')" :title="user.status === 1 ? '在线' : (user.status === 2 ? '通话中' : '离线')"></span>
           </div>
           <div class="notification-info">
             <div class="notification-name">{{ user.nickName || user.userName }}</div>
@@ -69,7 +75,7 @@
               <img v-if="searchAvatarUrls[user.id]" :src="searchAvatarUrls[user.id]" alt="avatar" />
               <div v-else class="initials">{{ initials(user) }}</div>
             </div>
-            <span class="status" :class="user.status === 1 ? 'online' : 'offline'" :title="user.status === 1 ? '在线' : '离线'"></span>
+            <span class="status" :class="user.status === 1 ? 'online' : (user.status === 2 ? 'incall' : 'offline')" :title="user.status === 1 ? '在线' : (user.status === 2 ? '通话中' : '离线')"></span>
           </div>
           <div class="result-info">
             <div class="result-name">{{ user.nickName || user.userName }}</div>
@@ -118,14 +124,14 @@
                 <img v-if="friendAvatarUrls[f.id]" :src="friendAvatarUrls[f.id]" alt="avatar" />
                 <div v-else class="initials">{{ initials(f) }}</div>
               </div>
-              <span class="status" :class="f.status === 1 ? 'online' : 'offline'" :title="f.status === 1 ? '在线' : '离线'"></span>
+              <span class="status" :class="f.status === 1 ? 'online' : (f.status === 2 ? 'incall' : 'offline')" :title="f.status === 1 ? '在线' : (f.status === 2 ? '通话中' : '离线')"></span>
             </div>
             <div class="meta">
               <div class="name">{{ f.nickName || f.userName }}</div>
               <div class="sub">{{ f.email || f.phone || '' }}</div>
             </div>
             <div class="actions">
-              <button class="connect" @click.prevent>连线</button>
+              <button class="connect" @click.prevent="connectToFriend(f)" :disabled="f.status !== 1" :title="f.status === 1 ? '点击连线' : (f.status === 2 ? '通话中，不可点击' : '离线，不可点击')">{{ f.status === 1 ? '连线' : (f.status === 2 ? '通话中' : '离线') }}</button>
             </div>
           </div>
         </template>
@@ -150,7 +156,7 @@ const demoResponse = {
     list: [
       { id: 7, userName: '哈机密', nickName: null, email: null, phone: null, avatar: null, status: 0 },
       { id: 5, userName: 'nuliyang222', nickName: '哈机密', email: 'new@example.com', phone: '13800138000', avatar: 'https://example.com/avatar.png', status: 0 },
-      { id: 6, userName: 'user01', nickName: null, email: null, phone: null, avatar: null, status: 0 },
+      { id: 6, userName: 'user01', nickName: null, email: null, phone: null, avatar: null, status: 2 },
       { id: 8, userName: 'user03', nickName: null, email: null, phone: null, avatar: null, status: 0 },
       { id: 9, userName: 'user04', nickName: null, email: null, phone: null, avatar: null, status: 0 }
     ],
@@ -450,6 +456,24 @@ export default {
       if (page < 1 || page > this.notificationTotalPages) return
       this.notificationCurrentPage = page
       this.fetchFriendRequests()
+    },
+    createRoom () {
+      console.log('createRoom被调用')
+      const roomId = this.generateRoomId()
+      console.log('生成的roomId:', roomId)
+      this.$router.push({ name: 'videoCall', params: { roomId } })
+    },
+    connectToFriend (friend) {
+      console.log('connectToFriend被调用', friend)
+      const roomId = friend.roomId || this.generateRoomId()
+      const userId2 = friend.id
+      console.log('roomId:', roomId, 'userId2:', userId2)
+      this.$router.push({ name: 'videoCall', params: { roomId, userId: userId2 } })
+    },
+    generateRoomId () {
+      const roomId = Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
+      console.log('generateRoomId生成:', roomId)
+      return roomId
     }
   }
 }
@@ -457,14 +481,16 @@ export default {
 
 <style scoped>
 .main-page { position: relative; width: 100vw; height: 100vh; background: url('@/assets/main.jpg') no-repeat center center; background-size: cover; overflow: hidden }
-.current-user { position: absolute; top: 24px; right: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px }
+.current-user { position: absolute; top: 24px; right: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 16px }
 .current-user .avatar { position: relative; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; background: transparent; cursor: pointer; overflow: visible; transition: transform 0.2s }
 .current-user .avatar:hover { transform: scale(1.05) }
 .current-user .avatar-inner { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f0f0f0 }
 .current-user .avatar-inner img { width: 100%; height: 100%; object-fit: cover }
 .current-user .avatar-inner .initials { font-weight: 700; color: #2c3e50 }
-.user-tooltip { opacity: 0; white-space: nowrap; font-size: 14px; color: #666; transition: opacity 0.2s }
-.current-user:hover .user-tooltip { opacity: 1 }
+.avatar-tooltip { position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 8px; opacity: 0; white-space: nowrap; font-size: 14px; color: #666; transition: opacity 0.2s; pointer-events: none }
+.avatar:hover .avatar-tooltip { opacity: 1 }
+.camera-tooltip { position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: 8px; opacity: 0; white-space: nowrap; font-size: 14px; color: #666; transition: opacity 0.2s; pointer-events: none }
+.camera-icon:hover .camera-tooltip { opacity: 1 }
 .content-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 80px; height: calc(100vh - 48px); overflow: hidden }
 .header-section { display: flex; align-items: center; gap: 8px; margin-bottom: 18px }
 .content-wrapper h2 { margin-bottom: 0; font-size: 32px }
@@ -489,6 +515,7 @@ export default {
 .result-avatar .status { position: absolute; right: -4px; bottom: -4px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; z-index: 3 }
 .result-avatar .status.online { background: #28c76f }
 .result-avatar .status.offline { background: #d9d9d9 }
+.result-avatar .status.incall { background: #ff9800 }
 .result-info { flex: 1 }
 .result-name { font-weight: 600; color: #2c3e50; font-size: 14px }
 .result-sub { font-size: 12px; color: #666; margin-top: 2px }
@@ -524,6 +551,7 @@ export default {
 .status { position: absolute; right: -6px; bottom: -6px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; z-index: 3 }
 .status.online { background: #28c76f }
 .status.offline { background: #d9d9d9 }
+.status.incall { background: #ff9800 }
 .meta { flex: 1; padding: 0 12px }
 .name { font-weight: 600; color: #2c3e50 }
 .sub { font-size: 12px; color: #666 }
@@ -539,6 +567,9 @@ export default {
 .notification-icon { position: absolute; top: 24px; left: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); box-shadow: 0 1px 4px rgba(0,0,0,0.1); transition: opacity 0.2s }
 .notification-icon:hover { opacity: 0.8 }
 .notification-icon svg { color: #2c3e50 }
+.camera-icon { position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(40,199,111,0.9); box-shadow: 0 1px 4px rgba(0,0,0,0.1); transition: opacity 0.2s }
+.camera-icon:hover { opacity: 0.8 }
+.camera-icon svg { color: white }
 .notification-dot { position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; background: #ff4d4f; border-radius: 50%; border: 2px solid white }
 .notification-modal { position: fixed; top: 80px; left: 24px; background: white; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); padding: 16px; min-width: 320px; max-width: 400px; z-index: 1000; box-sizing: border-box }
 .notification-header { margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e0e0e0 }
@@ -555,6 +586,7 @@ export default {
 .notification-avatar .status { position: absolute; right: -4px; bottom: -4px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; z-index: 3 }
 .notification-avatar .status.online { background: #28c76f }
 .notification-avatar .status.offline { background: #d9d9d9 }
+.notification-avatar .status.incall { background: #ff9800 }
 .notification-info { flex: 1 }
 .notification-name { font-weight: 600; color: #2c3e50; font-size: 14px }
 .notification-sub { font-size: 12px; color: #666; margin-top: 2px }

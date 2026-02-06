@@ -46,6 +46,12 @@ const routes = [
     name: 'friend',
     component: () => import('../views/FriendView.vue')
   }
+  ,
+  {
+    path: '/videoCall/:roomId/:userId?',
+    name: 'videoCall',
+    component: () => import('../views/VideoCall.vue')
+  }
 ]
 
 const router = new VueRouter({
